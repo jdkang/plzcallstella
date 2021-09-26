@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "plzcallstella"
+version = "0.1.0"
+description = ""
+authors = ["Jai Kang <1807929+jdkang@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+beautifulsoup4 = "^4.10.0"
+requests = "^2.26.0"
+sty = "^1.0.0-rc.2"
+XlsxWriter = "^3.0.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = "^21.9b0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
