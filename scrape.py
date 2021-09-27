@@ -150,6 +150,7 @@ def main():
     participants_worksheet.write(0, 4, "city", bold)
     participants_worksheet.write(0, 5, "country", bold)
     participants_worksheet.write(0, 6, "link", bold)
+    total_column_index = 6
 
     # get all languages
     language_list = get_language_list()
@@ -200,8 +201,9 @@ def main():
             ):
                 break
     finally:
+        total_row_index = total_partcipants + 1
+        participants_worksheet.autofilter(0, 0, total_row_index, total_column_index)
         participants_manifest_workbook.close()
-
 
 if __name__ == "__main__":
     main()
