@@ -13,3 +13,5 @@ manifest.xlsx
 This was written to provide data for linguistics students (i.e. [phonology](https://en.wikipedia.org/wiki/Phonology) exercises).
 
 This repackaging is intended for educational purposes. Credit goes completely to Steven H. Weinberger, George Maison University, and [others](http://accent.gmu.edu/about.php).
+
+P.S. The Speech Accent Archive is proof that you do not need 20MB of frontend javascript to make something truly valuble.
