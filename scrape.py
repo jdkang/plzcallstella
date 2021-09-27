@@ -1,19 +1,22 @@
-#!/bin/env python3
+#!/bin/env python3.9
 
 import datetime
 import pathlib
 import shutil
-import requests
 import json
-import xlsxwriter
-from bs4 import BeautifulSoup
-from sty import fg, bg, ef, rs
 import re
-
 from pprint import pprint
 
+import xlsxwriter
+import requests
+from bs4 import BeautifulSoup
+from sty import fg, bg, ef, rs
+
 MAX_PARTICIPANTS_TO_PROCESS = -1
+SKIP_DETAILS_DOWNLOAD = False
+
 FILE_TS = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
+ISO_TS = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 SCRIPT_DIR = pathlib.Path(__file__).parent
 OUTPUT_DIR = pathlib.Path.joinpath(SCRIPT_DIR, f"output/{FILE_TS}")
 OUTPUT_RECORDINGS_DIR = pathlib.Path.joinpath(OUTPUT_DIR, "recordings")
@@ -53,7 +56,7 @@ def download_details(participant: dict):
     json_filename = f"{file_id}.json"
     json_file = pathlib.Path.joinpath(OUTPUT_JSON_DIR, json_filename)
     print(f"  {fg.grey}[json] {fg.green}saving {fg.yellow}{json_file}{fg.rs}")
-    json_str = json.dumps(participant)
+    json_str = json.dumps(participant, indent=2)
     json_file.write_text(json_str)
 
 
@@ -158,13 +161,18 @@ def main():
 
     # get each language particiapnts
     total_partcipants = 0
+    non_empty_lang_list = []
+    all_user_ids = []
     try:
         for lan in language_list:
             print(f"{fg.cyan}fetching language {fg.yellow}{lan['language']}{fg.rs}")
             participants = get_lang_participants(lan["language"])
+            count_participants = len(participants)
+            print(f"  {fg.green}participants: {fg.yellow}{count_participants}{fg.rs}")
+            if count_participants > 0:
+                non_empty_lang_list.append(lan['language'])
+            
             for count, participant in enumerate(participants):
-                total_partcipants += 1
-
                 # get and append detaILS
                 details = get_participant_details(participant["id"])
                 participant["details"].update(details)
@@ -173,6 +181,14 @@ def main():
                 print(
                     f"{fg.green}[{lan['language']}:{count+1}/{len(participants)}] {fg.da_yellow}{participant['key']} {fg.yellow}{participant['id']} {fg.rs}"
                 )
+
+                # download details files
+                if not SKIP_DETAILS_DOWNLOAD:
+                    download_details(participant)
+
+                # increment
+                total_partcipants += 1
+                all_user_ids.append(participant["id"])
 
                 # write spreadsheet entry
                 row = total_partcipants
@@ -185,11 +201,7 @@ def main():
                 participants_worksheet.write(row, 5, participant["country"])
                 participants_worksheet.write(row, 6, participant["link"])
 
-                # pprint(participant)
-
-                # download details files
-                download_details(participant)
-
+                # mostly for testing
                 if (
                     MAX_PARTICIPANTS_TO_PROCESS > 0
                     and total_partcipants >= MAX_PARTICIPANTS_TO_PROCESS
@@ -201,9 +213,21 @@ def main():
             ):
                 break
     finally:
+        # finalize xlsx
         total_row_index = total_partcipants + 1
         participants_worksheet.autofilter(0, 0, total_row_index, total_column_index)
         participants_manifest_workbook.close()
+
+        # write info.json
+        info_json_file = pathlib.Path.joinpath(OUTPUT_DIR, 'info.json')
+        info_json_data = {
+            'total_partcipants':total_partcipants,
+            'all_user_ids':all_user_ids,
+            'non_empty_lang_list':non_empty_lang_list,
+            'ts':ISO_TS
+        }
+        info_json_str = json.dumps(info_json_data, indent=2)
+        info_json_file.write_text(info_json_str)
 
 if __name__ == "__main__":
     main()

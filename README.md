@@ -7,10 +7,29 @@ recordings/
     0001.mp3
 transcripts
     0001.gif
+json/
+    0001.json
 manifest.xlsx
+info.json
 ```
 
-This was written to provide data for linguistics students (i.e. [phonology](https://en.wikipedia.org/wiki/Phonology) exercises).
+## Usage
+**REQ:**
+- Python 3.9+
+- [poetry](https://python-poetry.org/)
+
+```
+# install deps
+poetry install --no-dev
+
+# run script
+poetry run python scrape.py
+```
+
+Results will be output into `output/<TIMESTAMP>/`
+
+## Purpose
+This was written to provide data for linguistics students (i.e. [phonetics](https://en.wikipedia.org/wiki/Phonetics) transcription exercises).
 
 This repackaging is intended for educational purposes. Credit goes completely to Steven H. Weinberger, George Maison University, and [others](http://accent.gmu.edu/about.php).
 
